@@ -1,7 +1,11 @@
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
 const app = express();
 const PORT = 5000;
+
+// Enable CORS for all routes
+app.use(cors());
 
 // NASA API key - we will use the DEMO_KEY for now
 const NASA_API_KEY = 'DEMO_KEY';
