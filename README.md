@@ -1,23 +1,92 @@
-# Nasa Space App
-## A web application that utilises NASA's Open APIs
+# NASA Space App
+
+A web application that utilises NASA's Open APIs to showcase space-related data in an interactive and visually engaging way.
+
+---
+
+## Features
+
+- Fetch and display NASA's Astronomy Picture of the Day (APOD)
+- Fetch and display Mars Rover photos from NASA's Mars Rover Photos API
+- Backend server using Node.js and Express to handle NASA API requests
+- React frontend to display space data
+- CORS enabled for seamless communication between frontend and backend
+- Organized project structure separating frontend and backend
+
+---
+
+## Technologies Used
+
+- **Frontend:** React, Axios
+- **Backend:** Node.js, Express, Axios, CORS
+- **APIs:** NASA Open APIs (APOD, Mars Rover Photos)
 
 ---
 
 ## Project Setup
 
 ### Backend Setup
-1. Navigate to the backend folder:
-2. Install dependencies:
-3. Start the server:
-4. Visit `http://localhost:5000` to confirm the server is running.
+
+1. Open your terminal and navigate to the backend folder: cd backend
+
+2. Install all backend dependencies: npm install
+
+3. Start the backend server: npm start
+
+4. Go to your browser and visit: http://localhost:5000
+
+You should see a message confirming the backend is running.
 
 ---
 
-## User Stories
+### Frontend Setup
 
-### Epic: Backend Setup
-- **Story:** As a user, I want to have a running backend server that I can connect to from the frontend so I can fetch and display NASA data.
-- **Acceptance Criteria:** Server is running at `http://localhost:5000` and responds on the root route.
+1. In a new terminal window, navigate to the frontend folder: cd frontend
 
-- **Story:** As a developer, I want to fetch NASA's Astronomy Picture of the Day data from the backend so that the frontend can later display this space-related content.
-- **Acceptance Criteria:** Visiting `http://localhost:5000/apod` successfully returns JSON data from NASA's APOD API.
+2. Install all frontend dependencies: npm install
+
+3. Start the React development server: npm start
+
+4. Go to your browser and visit: http://localhost:3000
+
+You should now see the NASA Space App running.
+
+---
+
+## API Routes
+
+### Backend API Endpoints
+
+- `GET /`  
+Returns a simple confirmation message that the backend server is running.
+
+- `GET /apod`  
+Fetches NASA's Astronomy Picture of the Day (APOD) and returns the data as JSON.
+
+- `GET /mars-photos`  
+*(Planned feature)* This will fetch photos from NASA's Mars Rover Photos API.
+
+---
+
+## Folder Structure
+
+nasa-space-app/
+│
+├── backend/
+│ ├── node_modules/
+│ ├── server.js
+│ └── package.json
+│
+└── frontend/
+├── node_modules/
+├── public/
+├── src/
+└── package.json
+
+
+---
+
+## Notes
+
+- This project follows Agile methodology using GitHub Projects to track epics and user stories.
+- Regular commits are made to document each development step.

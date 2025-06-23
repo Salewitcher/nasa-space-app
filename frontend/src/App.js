@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import MarsRoverPhotos from './components/MarsRoverPhotos';
 
 function App() {
   const [apod, setApod] = useState(null);
@@ -23,12 +24,18 @@ function App() {
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h1>{apod.title}</h1>
+      <h1>NASA Space App</h1>
+
+      {/* Astronomy Picture of the Day */}
+      <h2>{apod.title}</h2>
       {apod.media_type === 'image' && (
         <img src={apod.url} alt={apod.title} style={{ maxWidth: '80%', height: 'auto' }} />
       )}
       <p>{apod.date}</p>
       <p>{apod.explanation}</p>
+
+      {/* Mars Rover Photos */}
+      <MarsRoverPhotos />
     </div>
   );
 }
