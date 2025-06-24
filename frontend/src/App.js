@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './App.css';
+
 
 function App() {
   const [apod, setApod] = useState(null);
@@ -91,16 +93,20 @@ function App() {
         {loadingMars && <p>Loading Mars Photos...</p>}
         {errorMars && <p>{errorMars}</p>}
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {marsPhotos.length > 0 ? marsPhotos.map(photo => (
-            <img
-              key={photo.id}
-              src={photo.img_src}
-              alt={`Mars Rover - ${photo.rover.name}`}
-              style={{ width: '300px', margin: '10px', borderRadius: '8px' }}
-            />
-          )) : <p>No photos to display.</p>}
-        </div>
+        <div className="photos-grid">
+  {marsPhotos.length > 0 ? marsPhotos.map(photo => (
+    <div key={photo.id} className="photo-card">
+      <img
+        src={photo.img_src}
+        alt={`Mars Rover - ${photo.rover.name}`}
+      />
+      <p><strong>Rover:</strong> {photo.rover.name}</p>
+      <p><strong>Camera:</strong> {photo.camera.full_name}</p>
+      <p><strong>Earth Date:</strong> {photo.earth_date}</p>
+    </div>
+  )) : <p>No photos to display.</p>}
+</div>
+
       </section>
     </div>
   );
