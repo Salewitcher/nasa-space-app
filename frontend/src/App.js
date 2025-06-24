@@ -1,41 +1,107 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import MarsRoverPhotos from './components/MarsRoverPhotos';
 
 function App() {
   const [apod, setApod] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loadingApod, setLoadingApod] = useState(true);
+  const [errorApod, setErrorApod] = useState(null);
 
+  const [marsPhotos, setMarsPhotos] = useState([]);
+  const [loadingMars, setLoadingMars] = useState(false);
+  const [errorMars, setErrorMars] = useState(null);
+
+  const [rover, setRover] = useState('curiosity');
+  const [sol, setSol] = useState(1000);
+
+  // Fetch APOD on page load
   useEffect(() => {
     axios.get('http://localhost:5000/apod')
       .then(response => {
         setApod(response.data);
-        setLoading(false);
+        setLoadingApod(false);
       })
       .catch(err => {
-        setError('Error fetching data');
-        setLoading(false);
+        setErrorApod('Error fetching APOD data');
+        setLoadingApod(false);
       });
   }, []);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  // Fetch Mars Rover Photos when form is submitted
+  const fetchMarsPhotos = async (e) => {
+    e.preventDefault();
+    setLoadingMars(true);
+    setErrorMars(null);
+    try {
+      const response = await axios.get('http://localhost:5000/mars-photos', {
+        params: { rover, sol }
+      });
+      setMarsPhotos(response.data);
+    } catch (error) {
+      setErrorMars('Error fetching Mars Rover photos');
+    } finally {
+      setLoadingMars(false);
+    }
+  };
 
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
       <h1>NASA Space App</h1>
 
       {/* Astronomy Picture of the Day */}
-      <h2>{apod.title}</h2>
-      {apod.media_type === 'image' && (
-        <img src={apod.url} alt={apod.title} style={{ maxWidth: '80%', height: 'auto' }} />
-      )}
-      <p>{apod.date}</p>
-      <p>{apod.explanation}</p>
+      <section style={{ marginBottom: '4rem' }}>
+        <h2>Astronomy Picture of the Day</h2>
+        {loadingApod && <p>Loading...</p>}
+        {errorApod && <p>{errorApod}</p>}
+        {apod && (
+          <>
+            <h3>{apod.title}</h3>
+            {apod.media_type === 'image' && (
+              <img src={apod.url} alt={apod.title} style={{ maxWidth: '80%', height: 'auto' }} />
+            )}
+            <p>{apod.date}</p>
+            <p>{apod.explanation}</p>
+          </>
+        )}
+      </section>
 
       {/* Mars Rover Photos */}
-      <MarsRoverPhotos />
+      <section>
+        <h2>Mars Rover Photos</h2>
+        <form onSubmit={fetchMarsPhotos} style={{ marginBottom: '2rem' }}>
+          <label>
+            Select Rover:
+            <select value={rover} onChange={(e) => setRover(e.target.value)} style={{ margin: '0 1rem' }}>
+              <option value="curiosity">Curiosity</option>
+              <option value="opportunity">Opportunity</option>
+              <option value="spirit">Spirit</option>
+            </select>
+          </label>
+          <label>
+            Sol (Martian Day):
+            <input
+              type="number"
+              value={sol}
+              onChange={(e) => setSol(e.target.value)}
+              style={{ margin: '0 1rem' }}
+            />
+          </label>
+          <button type="submit">Fetch Photos</button>
+        </form>
+
+        {loadingMars && <p>Loading Mars Photos...</p>}
+        {errorMars && <p>{errorMars}</p>}
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {marsPhotos.length > 0 ? marsPhotos.map(photo => (
+            <img
+              key={photo.id}
+              src={photo.img_src}
+              alt={`Mars Rover - ${photo.rover.name}`}
+              style={{ width: '300px', margin: '10px', borderRadius: '8px' }}
+            />
+          )) : <p>No photos to display.</p>}
+        </div>
+      </section>
     </div>
   );
 }
