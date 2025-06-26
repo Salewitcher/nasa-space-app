@@ -3,7 +3,7 @@ const axios = require('axios');
 const router = express.Router();
 
 // NASA API key
-const NASA_API_KEY = 'DEMO_KEY';
+const NASA_API_KEY = process.env.NASA_API_KEY;
 
 // Route to get Astronomy Picture of the Day (APOD)
 router.get('/apod', async (req, res) => {
