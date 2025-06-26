@@ -11,7 +11,7 @@ const EpicPhotos = () => {
   useEffect(() => {
     const fetchEpicPhotos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/epic');
+        const response = await axios.get('http://localhost:5000/api/epic');
         // Assuming backend sends full data array, we map to desired structure:
         const photosData = response.data.slice(0, 10).map(photo => ({
           date: photo.date,

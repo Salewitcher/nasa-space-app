@@ -10,7 +10,7 @@ const Apod = () => {
   useEffect(() => {
     const fetchApod = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/apod');
+        const response = await axios.get('http://localhost:5000/api/apod');
         setData(response.data);
       } catch (err) {
         setError('Failed to load Astronomy Picture of the Day.');

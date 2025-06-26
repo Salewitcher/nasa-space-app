@@ -11,7 +11,7 @@ const MarsRoverPhotos = () => {
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/mars-photos');
+        const response = await axios.get('http://localhost:5000/api/mars-photos');
         setPhotos(response.data);
       } catch (err) {
         console.error('Error fetching Mars Rover photos:', err.message);
