@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import './App.css';
 import Apod from './components/Apod';
 import MarsRoverPhotos from './components/MarsRoverPhotos';
@@ -13,10 +13,18 @@ function App() {
         <h1>NASA Space App</h1>
 
         <nav className="nav">
-          <Link to="/">APOD</Link>
-          <Link to="/rover">Mars Rover</Link>
-          <Link to="/epic">EPIC</Link>
-          <Link to="/neo">NEOs</Link>
+          <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
+            APOD
+          </NavLink>
+          <NavLink to="/rover" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Mars Rover
+          </NavLink>
+          <NavLink to="/epic" className={({ isActive }) => (isActive ? 'active' : '')}>
+            EPIC
+          </NavLink>
+          <NavLink to="/neo" className={({ isActive }) => (isActive ? 'active' : '')}>
+            NEOs
+          </NavLink>
         </nav>
 
         <Routes>
