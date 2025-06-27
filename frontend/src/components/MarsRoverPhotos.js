@@ -2,47 +2,146 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './MarsRoverPhotos.css';
 
+const roverCameras = {
+  curiosity: [
+    { name: 'FHAZ', full_name: 'Front Hazard Avoidance Camera' },
+    { name: 'RHAZ', full_name: 'Rear Hazard Avoidance Camera' },
+    { name: 'MAST', full_name: 'Mast Camera' },
+    { name: 'CHEMCAM', full_name: 'Chemistry and Camera Complex' },
+    { name: 'MAHLI', full_name: 'Mars Hand Lens Imager' },
+    { name: 'MARDI', full_name: 'Mars Descent Imager' },
+    { name: 'NAVCAM', full_name: 'Navigation Camera' },
+  ],
+  opportunity: [
+    { name: 'FHAZ', full_name: 'Front Hazard Avoidance Camera' },
+    { name: 'RHAZ', full_name: 'Rear Hazard Avoidance Camera' },
+    { name: 'NAVCAM', full_name: 'Navigation Camera' },
+    { name: 'PANCAM', full_name: 'Panoramic Camera' },
+    { name: 'MINITES', full_name: 'Miniature Thermal Emission Spectrometer (Mini-TES)' },
+  ],
+  spirit: [
+    { name: 'FHAZ', full_name: 'Front Hazard Avoidance Camera' },
+    { name: 'RHAZ', full_name: 'Rear Hazard Avoidance Camera' },
+    { name: 'NAVCAM', full_name: 'Navigation Camera' },
+    { name: 'PANCAM', full_name: 'Panoramic Camera' },
+    { name: 'MINITES', full_name: 'Miniature Thermal Emission Spectrometer (Mini-TES)' },
+  ],
+};
 
 const MarsRoverPhotos = () => {
   const [photos, setPhotos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchPhotos = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/mars-photos');
-        setPhotos(response.data);
-      } catch (err) {
-        console.error('Error fetching Mars Rover photos:', err.message);
-        setError('Failed to load Mars Rover photos.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [rover, setRover] = useState('curiosity');
+  const [sol, setSol] = useState(1000);
+  const [camera, setCamera] = useState('');
 
+  // Fetch photos based on filters
+  const fetchPhotos = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const params = {
+        rover,
+        sol,
+      };
+      if (camera) params.camera = camera;
+
+      const response = await axios.get('http://localhost:5000/api/mars-photos', { params });
+      setPhotos(response.data);
+      if (response.data.length === 0) {
+        setError('No photos found for these filters.');
+      }
+    } catch (err) {
+      console.error('Error fetching Mars Rover photos:', err.message);
+      setError('Failed to load Mars Rover photos.');
+      setPhotos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch photos on initial load with default values
+  useEffect(() => {
     fetchPhotos();
   }, []);
 
-  if (loading) return <p>Loading Mars Rover photos...</p>;
-  if (error) return <p>{error}</p>;
+  // Update camera dropdown when rover changes
+  useEffect(() => {
+    setCamera(''); // reset camera when rover changes
+  }, [rover]);
 
   return (
-    <div>
-      <h2>Mars Rover Photos</h2>
-      <div className="photos-grid">
-        {photos.map(photo => (
-          <div key={photo.id} className="photo-card">
-            <img
-              src={photo.img_src}
-              alt={`Mars Rover - ${photo.camera.full_name}`}
-            />
-            <p><strong>Rover:</strong> {photo.rover.name}</p>
-            <p><strong>Camera:</strong> {photo.camera.full_name}</p>
-            <p><strong>Earth Date:</strong> {photo.earth_date}</p>
-          </div>
-        ))}
+    <div className="mars-container">
+      <h2 className="mars-heading">Mars Rover Photos</h2>
+
+      <div className="mars-controls">
+        <label className="mars-label">
+          Rover:
+          <select
+            className="mars-select"
+            value={rover}
+            onChange={e => setRover(e.target.value)}
+          >
+            <option value="curiosity">Curiosity</option>
+            <option value="opportunity">Opportunity</option>
+            <option value="spirit">Spirit</option>
+          </select>
+        </label>
+
+        <label className="mars-label">
+          Sol (Martian day):
+          <input
+            type="number"
+            className="mars-input"
+            min="0"
+            value={sol}
+            onChange={e => setSol(e.target.value)}
+          />
+        </label>
+
+        <label className="mars-label">
+          Camera:
+          <select
+            className="mars-select"
+            value={camera}
+            onChange={e => setCamera(e.target.value)}
+          >
+            <option value="">All</option>
+            {roverCameras[rover].map(cam => (
+              <option key={cam.name} value={cam.name}>
+                {cam.full_name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <button className="mars-button" onClick={fetchPhotos}>
+          Search
+        </button>
       </div>
+
+      {loading && <p className="mars-loading">Loading Mars Rover photos...</p>}
+      {error && !loading && <p className="mars-error">{error}</p>}
+
+      {!loading && !error && photos.length > 0 && (
+        <div className="photos-grid">
+          {photos.map(photo => (
+            <div key={photo.id} className="photo-card">
+              <img
+                src={photo.img_src}
+                alt={`Mars Rover - ${photo.camera.full_name}`}
+              />
+              <div className="photo-card-text">
+                <p><strong>Rover:</strong> {photo.rover.name}</p>
+                <p><strong>Camera:</strong> {photo.camera.full_name}</p>
+                <p><strong>Earth Date:</strong> {photo.earth_date}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -51,4 +51,22 @@ router.get('/epic', async (req, res) => {
     }
 });
 
+// NEO Route to get Near Earth Objects for today
+router.get('/neo', async (req, res) => {
+    const today = new Date().toISOString().split('T')[0]; // format YYYY-MM-DD
+    try {
+        const response = await axios.get(`https://api.nasa.gov/neo/rest/v1/feed`, {
+            params: {
+                start_date: today,
+                end_date: today,
+                api_key: NASA_API_KEY,
+            },
+        });
+        res.json(response.data.near_earth_objects[today]);
+    } catch (error) {
+        console.error('Error fetching NEO data:', error.message);
+        res.status(500).json({ error: 'Failed to fetch NEO data' });
+    }
+});
+
 module.exports = router;
