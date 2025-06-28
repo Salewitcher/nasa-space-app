@@ -2,181 +2,75 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './MarsRoverPhotos.css';
 
-const roverCameras = {
-  curiosity: [
-    { name: 'FHAZ', full_name: 'Front Hazard Avoidance Camera' },
-    { name: 'RHAZ', full_name: 'Rear Hazard Avoidance Camera' },
-    { name: 'MAST', full_name: 'Mast Camera' },
-    { name: 'CHEMCAM', full_name: 'Chemistry and Camera Complex' },
-    { name: 'MAHLI', full_name: 'Mars Hand Lens Imager' },
-    { name: 'MARDI', full_name: 'Mars Descent Imager' },
-    { name: 'NAVCAM', full_name: 'Navigation Camera' },
-  ],
-  opportunity: [
-    { name: 'FHAZ', full_name: 'Front Hazard Avoidance Camera' },
-    { name: 'RHAZ', full_name: 'Rear Hazard Avoidance Camera' },
-    { name: 'NAVCAM', full_name: 'Navigation Camera' },
-    { name: 'PANCAM', full_name: 'Panoramic Camera' },
-    { name: 'MINITES', full_name: 'Miniature Thermal Emission Spectrometer (Mini-TES)' },
-  ],
-  spirit: [
-    { name: 'FHAZ', full_name: 'Front Hazard Avoidance Camera' },
-    { name: 'RHAZ', full_name: 'Rear Hazard Avoidance Camera' },
-    { name: 'NAVCAM', full_name: 'Navigation Camera' },
-    { name: 'PANCAM', full_name: 'Panoramic Camera' },
-    { name: 'MINITES', full_name: 'Miniature Thermal Emission Spectrometer (Mini-TES)' },
-  ],
-};
+const Spinner = () => <div className="spinner" />;
 
 const MarsRoverPhotos = () => {
   const [photos, setPhotos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const [rover, setRover] = useState('curiosity');
   const [sol, setSol] = useState(1000);
   const [camera, setCamera] = useState('');
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [total, setTotal] = useState(0);
 
-  const [useSol, setUseSol] = useState(true);
-  const [earthDate, setEarthDate] = useState('');
-
-  // Fetch photos based on filters
-  const fetchPhotos = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params = {
-        rover,
-      };
-
-      if (useSol) {
-        params.sol = sol;
-      } else if (earthDate) {
-        params.earth_date = earthDate;
-      }
-
-      if (camera) params.camera = camera;
-
-      const response = await axios.get('http://localhost:5000/api/mars-photos', { params });
-      const limitedPhotos = response.data.slice(0, 20);
-      setPhotos(limitedPhotos);
-
-      if (limitedPhotos.length === 0) {
-        setError('No photos found for these filters.');
-      }
-    } catch (err) {
-      console.error('Error fetching Mars Rover photos:', err.message);
-      setError('Failed to load Mars Rover photos.');
-      setPhotos([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch photos on initial load with default values
   useEffect(() => {
+    const fetchPhotos = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await axios.get('/api/mars-photos', {
+          params: { rover, sol, camera, page }
+        });
+        setPhotos(response.data.photos);
+        setTotal(response.data.total);
+        if (response.data.photos.length === 0) {
+          setError('No photos found for this filter.');
+        }
+      } catch (err) {
+        setError('Failed to fetch Mars Rover photos.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPhotos();
-  }, []);
+  }, [rover, sol, camera, page]);
 
-  // Reset camera when rover changes
-  useEffect(() => {
-    setCamera('');
-  }, [rover]);
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const maxPage = Math.ceil(total / 20);
+
+  if (loading) return <Spinner />;
+  if (error) return <p className="mars-error">{error}</p>;
 
   return (
     <div className="mars-container">
-      <h2 className="mars-heading">Mars Rover Photos</h2>
+      <h2 className="mars-title">Mars Rover Photos</h2>
 
-      <div className="mars-controls">
-        <label className="mars-label">
-          Rover:
-          <select
-            className="mars-select"
-            value={rover}
-            onChange={e => setRover(e.target.value)}
-          >
-            <option value="curiosity">Curiosity</option>
-            <option value="opportunity">Opportunity</option>
-            <option value="spirit">Spirit</option>
-          </select>
-        </label>
+      {/* Filter Controls (optional - add as you want) */}
+      {/* Example: Rover select, Sol input, Camera select */}
 
-        <label className="mars-label">
-          Search by:
-          <select
-            className="mars-select"
-            value={useSol ? 'sol' : 'earth_date'}
-            onChange={e => setUseSol(e.target.value === 'sol')}
-          >
-            <option value="sol">Sol (Martian day)</option>
-            <option value="earth_date">Earth Date</option>
-          </select>
-        </label>
-
-        {useSol ? (
-          <label className="mars-label">
-            Sol:
-            <input
-              type="number"
-              className="mars-input"
-              min="0"
-              value={sol}
-              onChange={e => setSol(e.target.value)}
-            />
-          </label>
-        ) : (
-          <label className="mars-label">
-            Earth Date:
-            <input
-              type="date"
-              className="mars-input"
-              value={earthDate}
-              onChange={e => setEarthDate(e.target.value)}
-            />
-          </label>
-        )}
-
-        <label className="mars-label">
-          Camera:
-          <select
-            className="mars-select"
-            value={camera}
-            onChange={e => setCamera(e.target.value)}
-          >
-            <option value="">All</option>
-            {roverCameras[rover].map(cam => (
-              <option key={cam.name} value={cam.name}>
-                {cam.full_name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button className="mars-button" onClick={fetchPhotos}>
-          Search
-        </button>
+      <div className="photos-grid">
+        {photos.map(photo => (
+          <div key={photo.id} className="photo-card">
+            <img src={photo.img_src} alt={`Mars by ${photo.rover.name}`} loading="lazy" />
+            <div className="photo-card-text">
+              <p><strong>Rover:</strong> {photo.rover.name}</p>
+              <p><strong>Camera:</strong> {photo.camera.full_name}</p>
+              <p><strong>Date:</strong> {photo.earth_date}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {loading && <div className="mars-spinner"></div>}
-      {error && !loading && <p className="mars-error">{error}</p>}
+      <div className="pagination">
+        <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>Previous</button>
+        <span>Page {page} / {maxPage}</span>
+        <button onClick={() => setPage(p => Math.min(p + 1, maxPage))} disabled={page === maxPage}>Next</button>
+      </div>
 
-      {!loading && !error && photos.length > 0 && (
-        <div className="photos-grid">
-          {photos.map(photo => (
-            <div key={photo.id} className="photo-card">
-              <img
-                src={photo.img_src}
-                alt={`Mars Rover - ${photo.camera.full_name}`}
-              />
-              <div className="photo-card-text">
-                <p><strong>Rover:</strong> {photo.rover.name}</p>
-                <p><strong>Camera:</strong> {photo.camera.full_name}</p>
-                <p><strong>Earth Date:</strong> {photo.earth_date}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <button className="back-to-top" onClick={scrollToTop}>↑ Back to Top</button>
     </div>
   );
 };
