@@ -37,6 +37,9 @@ const MarsRoverPhotos = () => {
   const [sol, setSol] = useState(1000);
   const [camera, setCamera] = useState('');
 
+  const [useSol, setUseSol] = useState(true);
+  const [earthDate, setEarthDate] = useState('');
+
   // Fetch photos based on filters
   const fetchPhotos = async () => {
     setLoading(true);
@@ -44,13 +47,21 @@ const MarsRoverPhotos = () => {
     try {
       const params = {
         rover,
-        sol,
       };
+
+      if (useSol) {
+        params.sol = sol;
+      } else if (earthDate) {
+        params.earth_date = earthDate;
+      }
+
       if (camera) params.camera = camera;
 
       const response = await axios.get('http://localhost:5000/api/mars-photos', { params });
-      setPhotos(response.data);
-      if (response.data.length === 0) {
+      const limitedPhotos = response.data.slice(0, 20);
+      setPhotos(limitedPhotos);
+
+      if (limitedPhotos.length === 0) {
         setError('No photos found for these filters.');
       }
     } catch (err) {
@@ -67,9 +78,9 @@ const MarsRoverPhotos = () => {
     fetchPhotos();
   }, []);
 
-  // Update camera dropdown when rover changes
+  // Reset camera when rover changes
   useEffect(() => {
-    setCamera(''); // reset camera when rover changes
+    setCamera('');
   }, [rover]);
 
   return (
@@ -91,15 +102,39 @@ const MarsRoverPhotos = () => {
         </label>
 
         <label className="mars-label">
-          Sol (Martian day):
-          <input
-            type="number"
-            className="mars-input"
-            min="0"
-            value={sol}
-            onChange={e => setSol(e.target.value)}
-          />
+          Search by:
+          <select
+            className="mars-select"
+            value={useSol ? 'sol' : 'earth_date'}
+            onChange={e => setUseSol(e.target.value === 'sol')}
+          >
+            <option value="sol">Sol (Martian day)</option>
+            <option value="earth_date">Earth Date</option>
+          </select>
         </label>
+
+        {useSol ? (
+          <label className="mars-label">
+            Sol:
+            <input
+              type="number"
+              className="mars-input"
+              min="0"
+              value={sol}
+              onChange={e => setSol(e.target.value)}
+            />
+          </label>
+        ) : (
+          <label className="mars-label">
+            Earth Date:
+            <input
+              type="date"
+              className="mars-input"
+              value={earthDate}
+              onChange={e => setEarthDate(e.target.value)}
+            />
+          </label>
+        )}
 
         <label className="mars-label">
           Camera:
@@ -122,7 +157,7 @@ const MarsRoverPhotos = () => {
         </button>
       </div>
 
-      {loading && <p className="mars-loading">Loading Mars Rover photos...</p>}
+      {loading && <div className="mars-spinner"></div>}
       {error && !loading && <p className="mars-error">{error}</p>}
 
       {!loading && !error && photos.length > 0 && (
