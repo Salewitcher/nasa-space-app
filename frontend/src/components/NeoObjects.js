@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './NeoObjects.css'; // We'll create some styles for this
+import './NeoObjects.css';
 
 const NeoObjects = () => {
   const [neos, setNeos] = useState([]);
@@ -11,22 +11,25 @@ const NeoObjects = () => {
       try {
         setLoading(true);
         const response = await fetch('/api/neo');
-        if (!response.ok) {
-          throw new Error('Failed to fetch NEO data');
-        }
+        if (!response.ok) throw new Error('Failed to fetch NEO data');
         const data = await response.json();
         setNeos(data);
-        setLoading(false);
+        setError(null);
       } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
       }
     };
-
     fetchNeos();
   }, []);
 
-  if (loading) return <p className="neo-loading">Loading Near Earth Objects...</p>;
+  // Spinner JSX inside your component
+  const Spinner = () => (
+    <div className="neo-spinner"></div>
+  );
+
+  if (loading) return <Spinner />;
   if (error) return <p className="neo-error">Error: {error}</p>;
   if (!neos.length) return <p className="neo-no-data">No Near Earth Objects detected for today.</p>;
 

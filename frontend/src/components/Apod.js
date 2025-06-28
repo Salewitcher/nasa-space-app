@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Apod.css';
 
+const Spinner = () => <div className="spinner" />;
+
 const Apod = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ const Apod = () => {
     fetchApod();
   }, []);
 
-  if (loading) return <p>Loading APOD...</p>;
+  if (loading) return <Spinner />;
   if (error) return <p>{error}</p>;
 
   return (
@@ -36,7 +38,8 @@ const Apod = () => {
           title={data.title}
           frameBorder="0"
           allow="fullscreen"
-        ></iframe>
+          style={{ width: '100%', height: '500px' }}
+        />
       )}
       <p className="apod-description">{data.explanation}</p>
     </div>
