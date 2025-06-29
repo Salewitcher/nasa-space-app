@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './NeoObjects.css';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+} from 'recharts';
 
 const Spinner = () => <div className="spinner" />;
 
@@ -67,6 +70,26 @@ const Neo = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Chart Section */}
+      <h3 className="neo-subtitle">Top 10 NEO Estimated Diameters (meters)</h3>
+      <div className="neo-chart-container">
+        <ResponsiveContainer>
+          <BarChart data={neos.slice(0, 10).map(neo => ({
+            name: neo.name,
+            diameter: parseFloat(neo.estimated_diameter.meters.estimated_diameter_max.toFixed(2))
+          }))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <XAxis dataKey="name" angle={-45} textAnchor="end" interval={0} height={120} stroke="#fff" />
+            <YAxis stroke="#fff" label={{ value: 'Diameter (m)', angle: -90, position: 'insideLeft', fill: '#fff' }} />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#111', border: '1px solid #444', color: '#fff' }}
+              itemStyle={{ color: '#66fcf1' }}
+            />
+            <Bar dataKey="diameter" fill="#66fcf1" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
       <div className="pagination">
         <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>Previous</button>
