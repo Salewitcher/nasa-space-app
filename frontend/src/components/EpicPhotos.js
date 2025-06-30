@@ -11,12 +11,14 @@ const EpicPhotos = () => {
   const [error, setError] = useState('');
   const [total, setTotal] = useState(0);
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     const fetchEpicPhotos = async () => {
       setLoading(true);
       setError('');
       try {
-        const response = await axios.get('/api/epic', { params: { page } });
+        const response = await axios.get(`${API_BASE_URL}/api/epic`, { params: { page } });
         setPhotos(response.data.photos);
         setTotal(response.data.total);
         if (response.data.photos.length === 0) {
@@ -30,7 +32,7 @@ const EpicPhotos = () => {
     };
 
     fetchEpicPhotos();
-  }, [page]);
+  }, [page, API_BASE_URL]);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 

@@ -12,7 +12,9 @@ const Apod = () => {
   useEffect(() => {
     const fetchApod = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/apod');
+        // Use environment variable for API base URL
+        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+        const response = await axios.get(`${API_BASE_URL}/api/apod`);
         setData(response.data);
       } catch (err) {
         setError('Failed to load Astronomy Picture of the Day.');

@@ -14,12 +14,14 @@ const Neo = () => {
   const [error, setError] = useState('');
   const [total, setTotal] = useState(0);
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     const fetchNeos = async () => {
       setLoading(true);
       setError('');
       try {
-        const response = await axios.get('/api/neo', { params: { page } });
+        const response = await axios.get(`${API_BASE_URL}/api/neo`, { params: { page } });
         setNeos(response.data.neos);
         setTotal(response.data.total);
         if (response.data.neos.length === 0) {
@@ -33,7 +35,7 @@ const Neo = () => {
     };
 
     fetchNeos();
-  }, [page]);
+  }, [page, API_BASE_URL]);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 

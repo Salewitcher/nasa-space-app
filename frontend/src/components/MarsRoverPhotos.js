@@ -14,12 +14,14 @@ const MarsRoverPhotos = () => {
   const [error, setError] = useState('');
   const [total, setTotal] = useState(0);
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     const fetchPhotos = async () => {
       setLoading(true);
       setError('');
       try {
-        const response = await axios.get('/api/mars-photos', {
+        const response = await axios.get(`${API_BASE_URL}/api/mars-photos`, {
           params: { rover, sol, camera, page }
         });
         setPhotos(response.data.photos);
@@ -35,7 +37,7 @@ const MarsRoverPhotos = () => {
     };
 
     fetchPhotos();
-  }, [rover, sol, camera, page]);
+  }, [rover, sol, camera, page, API_BASE_URL]);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -47,9 +49,6 @@ const MarsRoverPhotos = () => {
   return (
     <div className="mars-container">
       <h2 className="mars-title">Mars Rover Photos</h2>
-
-      {/* Filter Controls (optional - add as you want) */}
-      {/* Example: Rover select, Sol input, Camera select */}
 
       <div className="photos-grid">
         {photos.map(photo => (
