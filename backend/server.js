@@ -5,8 +5,22 @@ const nasaRoutes = require('./routes/nasaRoutes');
 
 const app = express();
 
-// Temporarily allow all origins to fix CORS issues
-app.use(cors());
+const allowedOrigins = [
+    'https://nasa-frontend-kappa.vercel.app',
+    'https://nasa-frontend-i7jglidpx-sasho-stojkoskis-projects.vercel.app',
+    'http://localhost:3000'
+  ];
+  
+  app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  }));
+  
 
 // Root test route
 app.get('/', (req, res) => {
